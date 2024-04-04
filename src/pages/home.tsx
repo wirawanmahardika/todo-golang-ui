@@ -1,20 +1,27 @@
-import { Form, useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 import Task from "../components/Task";
-import DeleteModal from "../components/DeleteModal";
-import { useReducer, useState } from "react";
+import { useReducer } from "react";
 import { arrayOfTodo, todoReducer } from "../reducer/todo-reducer";
 import { myAxios } from "../helper/axiosInstance";
 
 export default function Home() {
     const loadedTodos = useLoaderData() as arrayOfTodo;
     const [todos, dispatch] = useReducer(todoReducer, loadedTodos);
-    const [input, setInput] = useState("");
 
     console.log(todos);
 
-    // const addTodo = (e: React.FormEvent<HTMLFormElement>) => {
-    //     e.preventDefault();
-    // };
+    const addTodo = async (e: any) => {
+        e.preventDefault();
+        const res = await myAxios.post("/api/v1/todo", {
+            activity: e.target.activity.value,
+        });
+
+        if (res.status < 300) {
+            dispatch({ type: "add", payload: res.data.data });
+            alert(res.data.message);
+            e.target.activity.value = "";
+        }
+    };
 
     const displayTodos = todos.map((t: todo, i: number) => {
         return (
@@ -36,15 +43,14 @@ export default function Home() {
             <div className="w-full justify-center items-center flex bg-blue-500 p-5 text-white">
                 <h1 className="font-bold text-2xl ">Todolist APP with BUN</h1>
             </div>
-            <Form className="mt-5 lg:w-4/5 mx-auto">
+            <form onSubmit={addTodo} className="mt-5 lg:w-4/5 mx-auto">
                 <input
                     type="text"
                     placeholder="Tulis tugas anda disini..."
+                    name="activity"
                     className="w-full p-2 md:p-4 outline-none border-2 border-blue-400 md:text-xl"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
                 />
-            </Form>
+            </form>
 
             <div className="flex flex-col mt-5  lg:w-4/5 mx-auto">
                 <h2 className="font-bold text-xl text-center mb-3 md:text-3xl">
@@ -53,8 +59,6 @@ export default function Home() {
 
                 {displayTodos}
             </div>
-
-            <DeleteModal />
         </>
     );
 }

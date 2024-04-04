@@ -1,5 +1,15 @@
 import { useState } from "react";
 import { actionType } from "../reducer/todo-reducer";
+import { myAxios } from "../helper/axiosInstance";
+import DeleteModal from "./DeleteModal";
+
+type taskProp = {
+    taskId: number;
+    content: string;
+    position: "last" | "mid" | "first";
+    finished: boolean;
+    dispatch?: React.Dispatch<actionType>;
+};
 
 export default function Task({
     taskId,
@@ -7,20 +17,56 @@ export default function Task({
     position,
     finished,
     dispatch,
-}: {
-    taskId: number;
-    content: string;
-    position: "last" | "mid" | "first";
-    finished: boolean;
-    dispatch?: React.Dispatch<actionType>;
-}) {
+}: taskProp) {
     const [checked, setChecked] = useState(finished);
+    const [deleteModalVisibility, setDeleteModalVisibility] = useState(false);
     const additionalClass =
         position === "first"
             ? "border-y-2 rounded-t"
             : position === "last"
             ? "border-b-2 rounded-b"
             : "border-b-2";
+
+    const deleteModalVisibilityHandle = () => {
+        setDeleteModalVisibility(!deleteModalVisibility);
+    };
+
+    const deleteTodo = async () => {
+        if (dispatch) {
+            dispatch({
+                type: "delete",
+                payload: {
+                    id: taskId,
+                    activity: "",
+                    finished: true,
+                    id_user: 0,
+                },
+            });
+            const res = await myAxios.delete("/api/v1/todo/" + taskId);
+            if (res.status < 300) alert(res.data);
+        }
+    };
+
+    const handleChange = async () => {
+        if (dispatch) {
+            const res = await myAxios.patch("/api/v1/todo/" + taskId, {
+                finished: !checked,
+            });
+
+            if (res.status < 300) {
+                setChecked(!checked);
+                dispatch({
+                    type: "setFinish",
+                    payload: {
+                        id: taskId,
+                        activity: "",
+                        id_user: 0,
+                        finished: !checked,
+                    },
+                });
+            }
+        }
+    };
 
     return (
         <>
@@ -31,39 +77,37 @@ export default function Task({
                 }
             >
                 <input
+                    id={taskId.toString()}
                     type="checkbox"
                     className="size-5"
                     checked={checked}
-                    onChange={() => {
-                        if (dispatch) {
-                            setChecked(!checked);
-                            dispatch({
-                                type: "setFinish",
-                                payload: {
-                                    todo: {
-                                        id: taskId,
-                                        activity: "",
-                                        id_user: 0,
-                                        finished: !checked,
-                                    },
-                                },
-                            });
-                        }
-                    }}
+                    onChange={handleChange}
                 />
-                <span className={`md:text-xl ${checked && "line-through"}`}>
+                <label
+                    htmlFor={taskId.toString()}
+                    className={`md:text-xl ${checked && "line-through"}`}
+                >
                     {content}
-                </span>
-                <TrashSvg />
+                </label>
+                <TrashSvg clickHandle={deleteModalVisibilityHandle} />
                 <UpdateSvg />
             </div>
+
+            <DeleteModal
+                setVisibility={deleteModalVisibilityHandle}
+                visible={deleteModalVisibility}
+                deleteAction={deleteTodo}
+            />
+
+            {/* <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 "></div> */}
         </>
     );
 }
 
-function TrashSvg() {
+function TrashSvg({ clickHandle }: { clickHandle: () => void }) {
     return (
         <svg
+            onClick={clickHandle}
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
