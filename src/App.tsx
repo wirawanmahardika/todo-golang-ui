@@ -5,7 +5,7 @@ import {
     createRoutesFromElements,
 } from "react-router-dom";
 import Home, { homeLoader } from "./pages/home";
-import Login from "./pages/login";
+import Login, { loginAction } from "./pages/login";
 import Signup from "./pages/signup";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
         createRoutesFromElements(
             <>
                 <Route path="/" element={<Home />} loader={homeLoader} />
-                <Route path="/login" element={<Login />} />
+                <Route path="/login" element={<Login />} action={loginAction} />
                 <Route path="/signup" element={<Signup />} />
             </>
         )

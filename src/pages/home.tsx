@@ -3,6 +3,7 @@ import Task from "../components/Task";
 import DeleteModal from "../components/DeleteModal";
 import { useReducer, useState } from "react";
 import { arrayOfTodo, todoReducer } from "../reducer/todo-reducer";
+import { myAxios } from "../helper/axiosInstance";
 
 export default function Home() {
     const loadedTodos = useLoaderData() as arrayOfTodo;
@@ -51,9 +52,6 @@ export default function Home() {
                 </h2>
 
                 {displayTodos}
-                {/* <Task content="Makan Pisang Ijo" position="first" />
-                <Task content="Makan Pisang Ijo" position="mid" />
-                <Task content="Makan Pisang Ijo" position="last" /> */}
             </div>
 
             <DeleteModal />
@@ -61,13 +59,7 @@ export default function Home() {
     );
 }
 
-export const homeLoader = () => {
-    const mockTodos = [
-        { id: 1, id_user: 21, activity: "activity 1", finished: false },
-        { id: 2, id_user: 31, activity: "activity 2", finished: true },
-        { id: 4, id_user: 35, activity: "activity 4", finished: false },
-        { id: 3, id_user: 41, activity: "activity 3", finished: true },
-    ];
-
-    return mockTodos;
+export const homeLoader = async () => {
+    const res = await myAxios.get("/api/v1/todo");
+    return res.data;
 };
