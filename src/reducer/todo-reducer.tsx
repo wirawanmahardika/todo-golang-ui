@@ -27,6 +27,16 @@ export function todoReducer(
                 return state.filter((t) => t.id !== action.payload?.id);
             }
             return state;
+
+        case "update":
+            if (action.payload) {
+                const targetIndex = state.findIndex(
+                    (t) => t.id === action.payload?.id
+                );
+                state[targetIndex].activity = action.payload.activity;
+                return state;
+            }
+            return state;
         default:
             return state;
     }

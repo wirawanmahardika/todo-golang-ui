@@ -2,6 +2,7 @@ import { useState } from "react";
 import { actionType } from "../reducer/todo-reducer";
 import { myAxios } from "../helper/axiosInstance";
 import DeleteModal from "./DeleteModal";
+import UpdateModal from "./UpdateModal";
 
 type taskProp = {
     taskId: number;
@@ -18,8 +19,10 @@ export default function Task({
     finished,
     dispatch,
 }: taskProp) {
+    const [activity, setActivity] = useState(content);
     const [checked, setChecked] = useState(finished);
     const [deleteModalVisibility, setDeleteModalVisibility] = useState(false);
+    const [updateModalVisibility, setUpdateModalVisibility] = useState(false);
     const additionalClass =
         position === "first"
             ? "border-y-2 rounded-t"
@@ -31,20 +34,8 @@ export default function Task({
         setDeleteModalVisibility(!deleteModalVisibility);
     };
 
-    const deleteTodo = async () => {
-        if (dispatch) {
-            dispatch({
-                type: "delete",
-                payload: {
-                    id: taskId,
-                    activity: "",
-                    finished: true,
-                    id_user: 0,
-                },
-            });
-            const res = await myAxios.delete("/api/v1/todo/" + taskId);
-            if (res.status < 300) alert(res.data);
-        }
+    const updateModalVisibilityHandle = () => {
+        setUpdateModalVisibility(!updateModalVisibility);
     };
 
     const handleChange = async () => {
@@ -68,6 +59,45 @@ export default function Task({
         }
     };
 
+    const deleteTodo = async () => {
+        if (dispatch) {
+            dispatch({
+                type: "delete",
+                payload: {
+                    id: taskId,
+                    activity: "",
+                    finished: true,
+                    id_user: 0,
+                },
+            });
+            const res = await myAxios.delete("/api/v1/todo/" + taskId);
+            if (res.status < 300) alert(res.data);
+        }
+    };
+
+    const updateTodo = (text: string, setModalVisibility: () => void) => {
+        return async () => {
+            const res = await myAxios.patch("/api/v1/todo/" + taskId, {
+                activity: text,
+            });
+
+            if (res.status < 300 && dispatch) {
+                dispatch({
+                    type: "update",
+                    payload: {
+                        id: taskId,
+                        activity: text,
+                        finished: true,
+                        id_user: 0,
+                    },
+                });
+                setModalVisibility();
+                setActivity(text);
+                alert(res.data);
+            }
+        };
+    };
+
     return (
         <>
             <div
@@ -87,10 +117,10 @@ export default function Task({
                     htmlFor={taskId.toString()}
                     className={`md:text-xl ${checked && "line-through"}`}
                 >
-                    {content}
+                    {activity}
                 </label>
                 <TrashSvg clickHandle={deleteModalVisibilityHandle} />
-                <UpdateSvg />
+                <UpdateSvg clickHandle={updateModalVisibilityHandle} />
             </div>
 
             <DeleteModal
@@ -99,7 +129,12 @@ export default function Task({
                 deleteAction={deleteTodo}
             />
 
-            {/* <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 "></div> */}
+            <UpdateModal
+                setVisibility={updateModalVisibilityHandle}
+                visible={updateModalVisibility}
+                updateAction={updateTodo}
+                defaultActivity={content}
+            />
         </>
     );
 }
@@ -124,9 +159,10 @@ function TrashSvg({ clickHandle }: { clickHandle: () => void }) {
     );
 }
 
-function UpdateSvg() {
+function UpdateSvg({ clickHandle }: { clickHandle: () => void }) {
     return (
         <svg
+            onClick={clickHandle}
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"

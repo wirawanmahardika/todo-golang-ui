@@ -8,8 +8,6 @@ export default function Home() {
     const loadedTodos = useLoaderData() as arrayOfTodo;
     const [todos, dispatch] = useReducer(todoReducer, loadedTodos);
 
-    console.log(todos);
-
     const addTodo = async (e: any) => {
         e.preventDefault();
         const res = await myAxios.post("/api/v1/todo", {
