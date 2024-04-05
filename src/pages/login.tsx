@@ -15,6 +15,12 @@ export default function Login() {
     } | null;
 
     useEffect(() => {
+        myAxios.get("/api/v1/user/info").then(() => {
+            navigate("/");
+        });
+    }, []);
+
+    useEffect(() => {
         if (loginData?.status && loginData.status < 300) {
             alert(loginData.data);
             navigate("/");

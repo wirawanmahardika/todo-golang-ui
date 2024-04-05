@@ -15,12 +15,12 @@ export default function Navbar() {
             <Link className="hover:text-black transition" to={"/"}>
                 Home
             </Link>
-            <Link className="hover:text-black transition" to={"/login"}>
+            {/* <Link className="hover:text-black transition" to={"/login"}>
                 Login
             </Link>
             <Link className="hover:text-black transition" to={"/signup"}>
                 Signup
-            </Link>
+            </Link> */}
             <button
                 onClick={logoutAction}
                 className="hover:text-black transition"

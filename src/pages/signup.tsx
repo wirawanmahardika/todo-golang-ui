@@ -1,6 +1,15 @@
-import { Form } from "react-router-dom";
+import { useEffect } from "react";
+import { Form, useNavigate } from "react-router-dom";
+import { myAxios } from "../helper/axiosInstance";
 
 export default function Signup() {
+    const navigate = useNavigate();
+    useEffect(() => {
+        myAxios.get("/api/v1/user/info").then(() => {
+            navigate("/");
+        });
+    }, []);
+
     return (
         <section className="bg-gray-900 py-8">
             <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto h-screen lg:py-0">

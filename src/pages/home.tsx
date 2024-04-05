@@ -1,13 +1,20 @@
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import Task from "../components/Task";
-import { useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { arrayOfTodo, todoReducer } from "../reducer/todo-reducer";
 import { myAxios } from "../helper/axiosInstance";
 import Navbar from "../components/Navbar";
 
 export default function Home() {
+    const navigate = useNavigate();
     const loadedTodos = useLoaderData() as arrayOfTodo;
     const [todos, dispatch] = useReducer(todoReducer, loadedTodos);
+
+    useEffect(() => {
+        myAxios.get("/api/v1/user/info").catch(() => {
+            navigate("/login");
+        });
+    }, []);
 
     const addTodo = async (e: any) => {
         e.preventDefault();
@@ -64,6 +71,10 @@ export default function Home() {
 }
 
 export const homeLoader = async () => {
-    const res = await myAxios.get("/api/v1/todo");
-    return res.data;
+    try {
+        const res = await myAxios.get("/api/v1/todo");
+        return res.data;
+    } catch (error) {
+        return [];
+    }
 };
