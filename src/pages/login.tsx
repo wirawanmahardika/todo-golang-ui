@@ -1,16 +1,23 @@
-import { ActionFunctionArgs, Form, useActionData } from "react-router-dom";
+import {
+    ActionFunctionArgs,
+    Form,
+    useActionData,
+    useNavigate,
+} from "react-router-dom";
 import { myAxios } from "../helper/axiosInstance";
 import { useEffect } from "react";
 
 export default function Login() {
+    const navigate = useNavigate();
     const loginData = useActionData() as {
         data: any;
         status: number;
     } | null;
 
     useEffect(() => {
-        if (loginData?.status) {
+        if (loginData?.status && loginData.status < 300) {
             alert(loginData.data);
+            navigate("/");
         }
     }, [loginData]);
 
