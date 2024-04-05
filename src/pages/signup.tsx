@@ -1,9 +1,46 @@
 import { useEffect } from "react";
-import { Form, useNavigate } from "react-router-dom";
+import {
+    ActionFunctionArgs,
+    Form,
+    useActionData,
+    useNavigate,
+} from "react-router-dom";
 import { myAxios } from "../helper/axiosInstance";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Signup() {
     const navigate = useNavigate();
+    const actionData = useActionData() as { message: string; status: number };
+
+    useEffect(() => {
+        if (actionData?.status < 300) {
+            toast.success(actionData?.message, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
+        } else {
+            toast.error(actionData?.message, {
+                position: "top-center",
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
+        }
+    }, [actionData]);
+
     useEffect(() => {
         myAxios.get("/api/v1/user/info").then(() => {
             navigate("/");
@@ -12,6 +49,19 @@ export default function Signup() {
 
     return (
         <section className="bg-gray-900 py-8">
+            <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                transition={Bounce}
+            />
             <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto h-screen lg:py-0">
                 <div className="w-full bg-white rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
                     <div className="p-6 space-y-4 md:space-y-6 sm:p-8 h-fit">
@@ -67,6 +117,7 @@ export default function Signup() {
                                 <input
                                     type="text"
                                     id="username"
+                                    name="username"
                                     className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                     placeholder="johndoe"
                                     required
@@ -95,7 +146,7 @@ export default function Signup() {
                                 Signup
                             </button>
                             <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                                Already have an account yet?{" "}
+                                Already have an account?{" "}
                                 <a
                                     href="/login"
                                     className="font-medium text-primary-600 hover:underline dark:text-primary-500"
@@ -110,3 +161,21 @@ export default function Signup() {
         </section>
     );
 }
+
+export const signupAction = async ({ request }: ActionFunctionArgs) => {
+    const data = Object.fromEntries(await request.formData()) as {
+        fullname: string;
+        username: string;
+        email: string;
+        password: string;
+    };
+
+    try {
+        const res = await myAxios.post("/api/v1/user/signup", data);
+        return { message: res.data, status: 200 };
+    } catch (error: any) {
+        console.log(error);
+
+        return { message: error.response.data, status: 422 };
+    }
+};
