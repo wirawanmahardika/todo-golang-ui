@@ -3,6 +3,7 @@ import Task from "../components/Task";
 import { useReducer } from "react";
 import { arrayOfTodo, todoReducer } from "../reducer/todo-reducer";
 import { myAxios } from "../helper/axiosInstance";
+import Navbar from "../components/Navbar";
 
 export default function Home() {
     const loadedTodos = useLoaderData() as arrayOfTodo;
@@ -38,8 +39,9 @@ export default function Home() {
 
     return (
         <>
-            <div className="w-full justify-center items-center flex bg-blue-500 p-5 text-white">
+            <div className="w-full justify-center items-center flex flex-col gap-y-3 bg-blue-500 p-5 text-white">
                 <h1 className="font-bold text-2xl ">Todolist APP with BUN</h1>
+                <Navbar />
             </div>
             <form onSubmit={addTodo} className="mt-5 lg:w-4/5 mx-auto">
                 <input
