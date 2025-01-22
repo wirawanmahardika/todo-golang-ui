@@ -3,6 +3,8 @@ import { actionType } from "../reducer/todo-reducer";
 import { myAxios } from "../helper/axiosInstance";
 import DeleteModal from "./DeleteModal";
 import UpdateModal from "./UpdateModal";
+import { Bounce, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type taskProp = {
     taskId: number;
@@ -61,17 +63,29 @@ export default function Task({
 
     const deleteTodo = async () => {
         if (dispatch) {
-            dispatch({
-                type: "delete",
-                payload: {
-                    id: taskId,
-                    activity: "",
-                    finished: true,
-                    id_user: 0,
-                },
-            });
             const res = await myAxios.delete("/api/v1/todo/" + taskId);
-            if (res.status < 300) alert(res.data);
+            if (res.status < 300) {
+                toast.success(res.data, {
+                    position: "top-center",
+                    autoClose: 1900,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce,
+                });
+                dispatch({
+                    type: "delete",
+                    payload: {
+                        id: taskId,
+                        activity: "",
+                        finished: true,
+                        id_user: 0,
+                    },
+                });
+            }
         }
     };
 
@@ -93,7 +107,17 @@ export default function Task({
                 });
                 setModalVisibility();
                 setActivity(text);
-                alert(res.data);
+                toast.success(res.data, {
+                    position: "top-center",
+                    autoClose: 1900,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "dark",
+                    transition: Bounce,
+                });
             }
         };
     };

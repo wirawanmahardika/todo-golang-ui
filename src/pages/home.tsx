@@ -4,6 +4,8 @@ import { useEffect, useReducer } from "react";
 import { arrayOfTodo, todoReducer } from "../reducer/todo-reducer";
 import { myAxios } from "../helper/axiosInstance";
 import Navbar from "../components/Navbar";
+import { Bounce, ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Home() {
     const navigate = useNavigate();
@@ -24,7 +26,17 @@ export default function Home() {
 
         if (res.status < 300) {
             dispatch({ type: "add", payload: res.data.data });
-            alert(res.data.message);
+            toast.success(res.data.message, {
+                position: "top-center",
+                autoClose: 1900,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "dark",
+                transition: Bounce,
+            });
             e.target.activity.value = "";
         }
     };
@@ -66,6 +78,20 @@ export default function Home() {
 
                 {displayTodos}
             </div>
+
+            <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="dark"
+                transition={Bounce}
+            />
         </>
     );
 }
